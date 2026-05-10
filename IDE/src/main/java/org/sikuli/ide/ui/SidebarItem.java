@@ -34,7 +34,7 @@ public class SidebarItem extends JButton {
     setBorderPainted(false);
     setContentAreaFilled(false);
     setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    setFont(createFallbackFont());
+    setFont(FontUtils.getFallbackFont());
     putClientProperty(FlatClientProperties.BUTTON_TYPE, FlatClientProperties.BUTTON_TYPE_BORDERLESS);
 
     if (action != null) {
@@ -46,26 +46,6 @@ public class SidebarItem extends JButton {
 
   public SidebarItem(String text, Icon icon) {
     this(text, icon, null);
-  }
-
-  private Font createFallbackFont() {
-    // On macOS, use system font family which automatically falls back to Apple Color Emoji
-    // On other platforms, use defaultFont with fallback support
-    String os = System.getProperty("os.name").toLowerCase();
-    if (os.contains("mac")) {
-      // macOS: Use SF Pro family which includes emoji support
-      return new Font(".SF Pro Text", Font.PLAIN, 14);
-    } else if (os.contains("win")) {
-      // Windows: Use Segoe UI which supports emoji
-      return new Font("Segoe UI", Font.PLAIN, 14);
-    } else {
-      // Linux: Use Inter (bundled) and hope for fallback, or use system default
-      Font defaultFont = UIManager.getFont("defaultFont");
-      if (defaultFont != null) {
-        return defaultFont.deriveFont(14.0f);
-      }
-      return new Font(Font.SANS_SERIF, Font.PLAIN, 14);
-    }
   }
 
   private void addMouseAdapter() {
