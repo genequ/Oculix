@@ -39,7 +39,7 @@ public class MacUtil extends GenericOsUtil {
       if (!appName.contains("/") && !appName.endsWith(".app")) {
         appName = resolveAppPath(appName);
         if (appName != null) {
-          String[] openCmd = new String[cmd.length + 1];
+          String[] openCmd = new String[cmd.length + 2];
           openCmd[0] = "open";
           openCmd[1] = "-a";
           openCmd[2] = appName;
@@ -50,7 +50,7 @@ public class MacUtil extends GenericOsUtil {
 
       // Handle .app bundles with open command
       if (appName.endsWith(".app")) {
-        String[] openCmd = new String[cmd.length + 1];
+        String[] openCmd = new String[cmd.length + 2];
         openCmd[0] = "open";
         openCmd[1] = "-a";
         openCmd[2] = appName;
