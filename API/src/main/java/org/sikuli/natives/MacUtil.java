@@ -4,6 +4,7 @@
 package org.sikuli.natives;
 
 import java.awt.Rectangle;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,16 +32,83 @@ public class MacUtil extends GenericOsUtil {
 
   @Override
   public OsProcess open(String[] cmd, String workDir) {
-    if (cmd != null && cmd.length > 0 && cmd[0].endsWith(".app")) {
-      // Use macOS 'open' command for .app bundles
-      String[] openCmd = new String[cmd.length + 1];
-      openCmd[0] = "open";
-      openCmd[1] = "-a";
-      openCmd[2] = cmd[0];
-      System.arraycopy(cmd, 1, openCmd, 3, cmd.length - 1);
-      return super.open(openCmd, workDir);
+    if (cmd != null && cmd.length > 0) {
+      String appName = cmd[0];
+
+      // Resolve app name to .app path if not already a path
+      if (!appName.contains("/") && !appName.endsWith(".app")) {
+        appName = resolveAppPath(appName);
+        if (appName != null) {
+          String[] openCmd = new String[cmd.length + 1];
+          openCmd[0] = "open";
+          openCmd[1] = "-a";
+          openCmd[2] = appName;
+          System.arraycopy(cmd, 1, openCmd, 3, cmd.length - 1);
+          return super.open(openCmd, workDir);
+        }
+      }
+
+      // Handle .app bundles with open command
+      if (appName.endsWith(".app")) {
+        String[] openCmd = new String[cmd.length + 1];
+        openCmd[0] = "open";
+        openCmd[1] = "-a";
+        openCmd[2] = appName;
+        System.arraycopy(cmd, 1, openCmd, 3, cmd.length - 1);
+        return super.open(openCmd, workDir);
+      }
     }
     return super.open(cmd, workDir);
+  }
+
+  /**
+   * Resolve app name to full .app path by searching common directories.
+   * @param appName Name of the app (e.g., "Google Chrome", "Safari")
+   * @return Full path to .app bundle, or null if not found
+   */
+  private static String resolveAppPath(String appName) {
+    if (appName == null || appName.isEmpty()) {
+      return null;
+    }
+
+    // If already has .app extension, use as-is
+    String searchName = appName.endsWith(".app") ? appName : appName + ".app";
+
+    // Common macOS app directories
+    String[] searchPaths = {
+      "/Applications",
+      "/System/Applications",
+      "/Users/" + System.getProperty("user.name") + "/Applications",
+      System.getProperty("user.home") + "/Applications"
+    };
+
+    for (String basePath : searchPaths) {
+      if (basePath == null) continue;
+
+      File appDir = new File(basePath);
+      if (!appDir.exists() || !appDir.isDirectory()) {
+        continue;
+      }
+
+      // Exact match
+      File exactMatch = new File(appDir, searchName);
+      if (exactMatch.exists()) {
+        return exactMatch.getAbsolutePath();
+      }
+
+      // Case-insensitive search for partial matches
+      File[] apps = appDir.listFiles((dir, name) ->
+        name.toLowerCase().endsWith(".app") &&
+        name.toLowerCase().contains(appName.toLowerCase())
+      );
+
+      if (apps != null && apps.length > 0) {
+        // Return first match (could be improved to prefer exact name match)
+        return apps[0].getAbsolutePath();
+      }
+    }
+
+    return null;
   }
 
   @Override
