@@ -341,7 +341,7 @@ public class OculixSidebar extends JPanel {
     footerPanel.add(pillSwitch, "align center");
 
     versionLabel = new JLabel("v" + version);
-    versionLabel.setFont(OculixFonts.mono(10));
+    versionLabel.setFont(org.sikuli.ide.ui.FontUtils.getFallbackFont(10));
     versionLabel.setHorizontalAlignment(SwingConstants.CENTER);
     versionLabel.setForeground(OculixColors.OX_INK_400);
     footerPanel.add(versionLabel);
@@ -426,7 +426,7 @@ public class OculixSidebar extends JPanel {
 
   private static JLabel makeStatusValue(String text) {
     JLabel l = new JLabel(text);
-    l.setFont(OculixFonts.mono(11));
+    l.setFont(org.sikuli.ide.ui.FontUtils.getFallbackFont(11));
     l.setForeground(OculixColors.OX_INK_300);
     return l;
   }
